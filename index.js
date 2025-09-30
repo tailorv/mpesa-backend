@@ -18,6 +18,11 @@ app.use(cors({
 
 app.use(express.json());
 
+// Explicitly handle OPTIONS for specific routes
+app.options('/stk-push', cors());
+app.options('/save-order', cors());
+app.options('/callback', cors());
+
 // Generate M-Pesa Access Token
 async function getAccessToken() {
   const auth = Buffer.from(`${process.env.MPESA_CONSUMER_KEY}:${process.env.MPESA_CONSUMER_SECRET}`).toString('base64');
@@ -31,11 +36,6 @@ async function getAccessToken() {
     throw error;
   }
 }
-
-// Explicitly handle OPTIONS for specific routes
-app.options('/stk-push', cors());
-app.options('/save-order', cors());
-app.options('/callback', cors());
 
 // Endpoint 1: /stk-push (Initiate M-Pesa STK Push)
 app.post('/stk-push', async (req, res) => {
