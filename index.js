@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(cors({ origin: 'https://www.havilahapitherapy.com' }));
+app.use(cors({ origin: ['https://www.havilahapitherapy.com', 'http://localhost:8080'] }));  // Allow all origins for testing; restrict to your Netlify URL in production
 
 // Generate M-Pesa Access Token
 async function getAccessToken() {
@@ -20,9 +20,9 @@ async function getAccessToken() {
   return response.data.access_token;
 }
 
-// STK Push Endpoint
+// Endpoint 1: /stk-push (Initiate M-Pesa STK Push)
 app.post('/stk-push', async (req, res) => {
-  const { phone, amount } = req.body;
+  const { phone, amount } = req.body;  // Expect phone and amount from front-end
   const shortCode = process.env.MPESA_SHORTCODE;
   const passkey = process.env.MPESA_PASSKEY;
   const callbackUrl = process.env.MPESA_CALLBACK_URL;
@@ -54,16 +54,24 @@ app.post('/stk-push', async (req, res) => {
   }
 });
 
-// Callback Endpoint
+// Endpoint 2: /save-order (Save Order Details)
+app.post('/save-order', (req, res) => {
+  const order = req.body;
+  console.log('Saved Order:', order);  // Replace with database save in production
+  res.json({ success: true, orderId: 'order-' + Date.now() });  // Return a mock order ID
+});
+
+// Callback Endpoint for M-Pesa (Required for STK Push)
 app.post('/callback', (req, res) => {
   const { Body } = req.body;
   const { stkCallback } = Body;
   if (stkCallback.ResultCode === 0) {
     console.log('Payment Successful:', stkCallback.CallbackMetadata);
+    // Update order status in database (e.g., mark as paid)
   } else {
     console.log('Payment Failed:', stkCallback.ResultDesc);
   }
-  res.sendStatus(200);
+  res.sendStatus(200);  // Acknowledge to M-Pesa
 });
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
