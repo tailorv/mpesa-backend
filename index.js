@@ -8,11 +8,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Configure CORS to allow requests from your Netlify domain
+// Configure CORS to allow https://havilahapitherapy.com
 app.use(cors({
   origin: 'https://havilahapitherapy.com',
-  methods: ['GET', 'POST', 'OPTIONS'], // Explicitly allow OPTIONS
-  allowedHeaders: ['Content-Type'], // Allow Content-Type header
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+  credentials: false
 }));
 
 app.use(express.json());
@@ -31,8 +32,10 @@ async function getAccessToken() {
   }
 }
 
-// Explicitly handle OPTIONS preflight for /stk-push
-app.options('/stk-push', cors()); // Ensure OPTIONS is handled
+// Explicitly handle OPTIONS for specific routes
+app.options('/stk-push', cors());
+app.options('/save-order', cors());
+app.options('/callback', cors());
 
 // Endpoint 1: /stk-push (Initiate M-Pesa STK Push)
 app.post('/stk-push', async (req, res) => {
