@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://havilahapitherapy.com');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   next();
 });
 
@@ -20,14 +20,14 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: 'https://havilahapitherapy.com',
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
 }));
 
 app.use(express.json());
 
 // Explicitly handle OPTIONS for all routes
-app.options('*', (req, res) => {
+app.options('', (req, res) => {
   res.sendStatus(200);
 });
 
