@@ -8,6 +8,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Add explicit CORS headers for all responses
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://havilahapitherapy.com');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
+
 // Configure CORS to allow https://havilahapitherapy.com
 app.use(cors({
   origin: 'https://havilahapitherapy.com',
@@ -18,10 +26,10 @@ app.use(cors({
 
 app.use(express.json());
 
-// Explicitly handle OPTIONS for specific routes
-app.options('/stk-push', cors());
-app.options('/save-order', cors());
-app.options('/callback', cors());
+// Explicitly handle OPTIONS for all routes
+app.options('*', (req, res) => {
+  res.sendStatus(200);
+});
 
 // Generate M-Pesa Access Token
 async function getAccessToken() {
