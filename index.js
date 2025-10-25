@@ -8,9 +8,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Configure CORS - use ONLY the cors middleware
+// Add explicit CORS headers for all responses
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://havilahapitherapy.com');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
+// Configure CORS to allow https://havilahapitherapy.com
 app.use(cors({
-  origin: 'https://havilahapitherapy.com',
+  origin: 'https://havilahapitherapy.com/',
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: false
@@ -18,15 +26,17 @@ app.use(cors({
 
 app.use(express.json());
 
-// Handle preflight requests for all routes
-app.options('*', cors());
+// Explicitly handle OPTIONS for all routes
+app.options('', (req, res) => {
+  res.sendStatus(200);
+});
 
 // Generate M-Pesa Access Token
 async function getAccessToken() {
-  const auth = Buffer.from(`${process.env.MPESA_CONSUMER_KEY}:${process.env.MPESA_CONSUMER_SECRET}`).toString('base64');
+  const auth = Buffer.from(${process.env.MPESA_CONSUMER_KEY}:${process.env.MPESA_CONSUMER_SECRET}).toString('base64');
   try {
-    const response = await axios.get(`${process.env.MPESA_API_BASE_URL}/oauth/v1/generate?grant_type=client_credentials`, {
-      headers: { Authorization: `Basic ${auth}` }
+    const response = await axios.get(${process.env.MPESA_API_BASE_URL}/oauth/v1/generate?grant_type=client_credentials, {
+      headers: { Authorization: Basic ${auth} }
     });
     return response.data.access_token;
   } catch (error) {
@@ -45,7 +55,7 @@ app.post('/stk-push', async (req, res) => {
   const passkey = process.env.MPESA_PASSKEY;
   const callbackUrl = process.env.MPESA_CALLBACK_URL;
   const timestamp = new Date().toISOString().replace(/[-:T]/g, '').split('.')[0];
-  const password = Buffer.from(`${shortCode}${passkey}${timestamp}`).toString('base64');
+  const password = Buffer.from(${shortCode}${passkey}${timestamp}).toString('base64');
 
   try {
     const token = await getAccessToken();
@@ -62,8 +72,8 @@ app.post('/stk-push', async (req, res) => {
       AccountReference: 'HavilahOrder',
       TransactionDesc: 'Payment for bee products'
     };
-    const response = await axios.post(`${process.env.MPESA_API_BASE_URL}/mpesa/stkpush/v1/processrequest`, stkPayload, {
-      headers: { Authorization: `Bearer ${token}` }
+    const response = await axios.post(${process.env.MPESA_API_BASE_URL}/mpesa/stkpush/v1/processrequest, stkPayload, {
+      headers: { Authorization: Bearer ${token} }
     });
     res.json(response.data);
   } catch (error) {
@@ -76,7 +86,7 @@ app.post('/stk-push', async (req, res) => {
 app.post('/save-order', (req, res) => {
   const order = req.body;
   console.log('Saved Order:', order); // Replace with database in production
-  res.json({ success: true, orderId: `order-${Date.now()}` });
+  res.json({ success: true, orderId: order-${Date.now()} });
 });
 
 // Callback Endpoint for M-Pesa
@@ -100,4 +110,4 @@ app.get('/', (req, res) => {
   res.json({ status: 'Backend is running' });
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(Server running on port ${PORT}));
